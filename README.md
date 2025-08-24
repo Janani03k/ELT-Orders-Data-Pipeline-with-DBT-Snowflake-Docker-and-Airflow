@@ -126,7 +126,8 @@ Below are the DAGs implemented in this project:
 
 
 <img width="1918" height="944" alt="Screenshot 2025-08-23 041640" src="https://github.com/user-attachments/assets/e805f9a6-0e7a-4273-bdc4-8bbdf9724b0c" />
-<img width="1500" height="944" alt="dbt_dag-graph" src="https://github.com/user-attachments/assets/dbd06b76-b938-4ceb-a85c-1fe35eed5432" />
+<img width="592" height="837" alt="dbt_dag-graph" src="https://github.com/user-attachments/assets/dd27d0a7-4aee-4e5a-948b-2a619684631e" />
+
 
 
 * **stg\_tpch\_orders / stg\_tpch\_line\_items** → Staging models
