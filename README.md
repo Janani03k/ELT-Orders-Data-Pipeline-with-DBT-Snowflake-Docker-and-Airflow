@@ -34,8 +34,8 @@ flowchart LR
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/<your-username>/dbt-airflow-snowflake.git
-cd dbt-airflow-snowflake
+git clone https://github.com/Janani03k/ELT-Orders-Data-Pipeline-with-DBT-Snowflake-Docker-and-Airflow.git
+cd ELT-Orders-Data-Pipeline-with-DBT-Snowflake-Docker-and-Airflow
 ```
 
 ### 2. Snowflake Configuration
@@ -49,13 +49,21 @@ create warehouse if not exists dbt_wh with warehouse_size='xsmall';
 create database if not exists dbt_db;
 create role if not exists dbt_role;
 
+show grants on warehouse dbt_wh;
+
 grant usage on warehouse dbt_wh to role dbt_role;
-grant role dbt_role to user <your_user>;
+grant role dbt_role to user <your_username>;
 grant all on database dbt_db to role dbt_role;
 
 use role dbt_role;
+
 create schema if not exists dbt_db.dbt_schema;
-grant create table, create view on schema dbt_db.dbt_schema to role dbt_role;
+
+grant create view on schema DBT_DB.DBT_SCHEMA to role dbt_role;
+grant create table on schema DBT_DB.DBT_SCHEMA to role dbt_role;
+
+grant select on table tpch.orders to role dbt_role;
+
 ```
 
 ### 3. Configure Airflow Connection
@@ -64,7 +72,7 @@ Add a Snowflake connection in Airflow (`snowflake_conn`):
 
 * **Conn Id**: `snowflake_conn`
 * **Conn Type**: `Snowflake`
-* **Account**: `vzc06137.us-east-1`
+* **Account**: `<your_snowflake_account>`
 * **Warehouse**: `dbt_wh`
 * **Database**: `dbt_db`
 * **Role**: `dbt_role`
@@ -79,7 +87,7 @@ airflow connections add snowflake_conn \
     --conn-type snowflake \
     --conn-login <USERNAME> \
     --conn-password '<PASSWORD>' \
-    --conn-extra '{"account": "vzc06137.us-east-1", "warehouse": "dbt_wh", "database": "dbt_db", "role": "dbt_role"}'
+    --conn-extra '{"account": "<your_snowflake_account>", "warehouse": "dbt_wh", "database": "dbt_db", "role": "dbt_role"}'
 ```
 
 ### 4. Run the pipeline
@@ -112,13 +120,19 @@ Go to **[http://localhost:8080](http://localhost:8080)** → enable the DAG `dbt
 
 The DAG orchestrates dbt models in dependency order.
 
-### DAG Graph
+### DAG Graph & DAG Run History
 
-![Airflow DAG Graph](./docs/airflow_dag.png)
+```markdown
+## Airflow DAGs
 
-### DAG Run History
+Below are the DAGs implemented in this project:
 
-![Airflow DAG Runs](./docs/airflow_dag_runs.png)
+<p align="center">
+  <img src="docs/airflow_dag1.png" alt="Airflow DAG 1" width="45%"/>
+  &nbsp;&nbsp;
+  <img src="docs/airflow_dag2.png" alt="Airflow DAG 2" width="45%"/>
+</p>
+```
 
 * **stg\_tpch\_orders / stg\_tpch\_line\_items** → Staging models
 * **int\_order\_items / int\_order\_items\_summary** → Intermediate aggregations
