@@ -78,7 +78,7 @@ Add a Snowflake connection in Airflow (`snowflake_conn`):
 * **Role**: `dbt_role`
 * **User/Password**: (your Snowflake credentials)
 
-Alternatively, via CLI:
+Alternatively, via CLI after running Docker Engine in the background:
 
 ```bash
 astro dev start
@@ -128,9 +128,9 @@ The DAG orchestrates dbt models in dependency order.
 Below are the DAGs implemented in this project:
 
 <p align="center">
-  <img src="docs/airflow_dag1.png" alt="Airflow DAG 1" width="45%"/>
+  <img src="C:\Users\janan\Downloads\dbt_dag-graph.png" alt="Airflow DAG 1" width="45%"/>
   &nbsp;&nbsp;
-  <img src="docs/airflow_dag2.png" alt="Airflow DAG 2" width="45%"/>
+  <img src="C:\Users\janan\OneDrive\Pictures\Screenshots\Screenshot 2025-08-23 041640.png" alt="Airflow DAG 2" width="45%"/>
 </p>
 ```
 
