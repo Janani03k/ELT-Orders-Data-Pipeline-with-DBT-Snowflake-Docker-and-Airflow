@@ -126,13 +126,7 @@ Below are the DAGs implemented in this project:
 
 
 <img width="1918" height="944" alt="Screenshot 2025-08-23 041640" src="https://github.com/user-attachments/assets/e805f9a6-0e7a-4273-bdc4-8bbdf9724b0c" />
-<img width="1918" height="944" alt="dbt_dag-graph" src="https://github.com/user-attachments/assets/dbd06b76-b938-4ceb-a85c-1fe35eed5432" />
-
-<p align="center">
-  <img src="C:\Users\janan\Downloads\dbt_dag-graph.png" alt="Airflow DAG 1" width="45%"/>
-  &nbsp;&nbsp;
-  <img src="C:\Users\janan\OneDrive\Pictures\Screenshots\Screenshot 2025-08-23 041640.png" alt="Airflow DAG 2" width="45%"/>
-</p>
+<img width="1500" height="944" alt="dbt_dag-graph" src="https://github.com/user-attachments/assets/dbd06b76-b938-4ceb-a85c-1fe35eed5432" />
 
 
 * **stg\_tpch\_orders / stg\_tpch\_line\_items** → Staging models
