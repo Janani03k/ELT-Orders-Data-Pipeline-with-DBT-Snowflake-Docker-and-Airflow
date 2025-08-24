@@ -1,45 +1,172 @@
-Overview
-========
+# 🚀 ELT Pipeline with dbt, Snowflake & Airflow (Astro)
 
-Welcome to Astronomer! This project was generated after you ran 'astro dev init' using the Astronomer CLI. This readme describes the contents of the project, as well as how to run Apache Airflow on your local machine.
+This project demonstrates a **modern ELT pipeline** using:
 
-Project Contents
-================
+* **dbt (data build tool)** for transformation
+* **Snowflake** as the data warehouse
+* **Apache Airflow (via Astronomer)** for orchestration
 
-Your Astro project contains the following files and folders:
+---
 
-- dags: This folder contains the Python files for your Airflow DAGs. By default, this directory includes one example DAG:
-    - `example_astronauts`: This DAG shows a simple ETL pipeline example that queries the list of astronauts currently in space from the Open Notify API and prints a statement for each astronaut. The DAG uses the TaskFlow API to define tasks in Python, and dynamic task mapping to dynamically print a statement for each astronaut. For more on how this DAG works, see our [Getting started tutorial](https://www.astronomer.io/docs/learn/get-started-with-airflow).
-- Dockerfile: This file contains a versioned Astro Runtime Docker image that provides a differentiated Airflow experience. If you want to execute other commands or overrides at runtime, specify them here.
-- include: This folder contains any additional files that you want to include as part of your project. It is empty by default.
-- packages.txt: Install OS-level packages needed for your project by adding them to this file. It is empty by default.
-- requirements.txt: Install Python packages needed for your project by adding them to this file. It is empty by default.
-- plugins: Add custom or community plugins for your project to this file. It is empty by default.
-- airflow_settings.yaml: Use this local-only file to specify Airflow Connections, Variables, and Pools instead of entering them in the Airflow UI as you develop DAGs in this project.
+## 📊 Project Architecture
 
-Deploy Your Project Locally
-===========================
+The pipeline extracts data from Snowflake’s sample `TPCH` dataset, transforms it using dbt models, and orchestrates execution with Airflow DAGs.
 
-Start Airflow on your local machine by running 'astro dev start'.
+### High-level Architecture
 
-This command will spin up five Docker containers on your machine, each for a different Airflow component:
+```mermaid
+flowchart LR
+    A[Snowflake TPCH Source Tables] --> B[dbt Staging Models]
+    B --> C[dbt Intermediate Models]
+    C --> D[dbt Fact Models]
+    D --> E[Analytics / BI Layer]
+    subgraph Orchestration
+        F[Airflow DAG] --> B
+        F --> C
+        F --> D
+    end
+```
 
-- Postgres: Airflow's Metadata Database
-- Scheduler: The Airflow component responsible for monitoring and triggering tasks
-- DAG Processor: The Airflow component responsible for parsing DAGs
-- API Server: The Airflow component responsible for serving the Airflow UI and API
-- Triggerer: The Airflow component responsible for triggering deferred tasks
+---
 
-When all five containers are ready the command will open the browser to the Airflow UI at http://localhost:8080/. You should also be able to access your Postgres Database at 'localhost:5432/postgres' with username 'postgres' and password 'postgres'.
+## ⚙️ Setup Instructions
 
-Note: If you already have either of the above ports allocated, you can either [stop your existing Docker containers or change the port](https://www.astronomer.io/docs/astro/cli/troubleshoot-locally#ports-are-not-available-for-my-local-airflow-webserver).
+### 1. Clone the repository
 
-Deploy Your Project to Astronomer
-=================================
+```bash
+git clone https://github.com/<your-username>/dbt-airflow-snowflake.git
+cd dbt-airflow-snowflake
+```
 
-If you have an Astronomer account, pushing code to a Deployment on Astronomer is simple. For deploying instructions, refer to Astronomer documentation: https://www.astronomer.io/docs/astro/deploy-code/
+### 2. Snowflake Configuration
 
-Contact
-=======
+Run the following SQL to set up roles, warehouse, and schema in Snowflake:
 
-The Astronomer CLI is maintained with love by the Astronomer team. To report a bug or suggest a change, reach out to our support.
+```sql
+use role accountadmin;
+
+create warehouse if not exists dbt_wh with warehouse_size='xsmall';
+create database if not exists dbt_db;
+create role if not exists dbt_role;
+
+grant usage on warehouse dbt_wh to role dbt_role;
+grant role dbt_role to user <your_user>;
+grant all on database dbt_db to role dbt_role;
+
+use role dbt_role;
+create schema if not exists dbt_db.dbt_schema;
+grant create table, create view on schema dbt_db.dbt_schema to role dbt_role;
+```
+
+### 3. Configure Airflow Connection
+
+Add a Snowflake connection in Airflow (`snowflake_conn`):
+
+* **Conn Id**: `snowflake_conn`
+* **Conn Type**: `Snowflake`
+* **Account**: `vzc06137.us-east-1`
+* **Warehouse**: `dbt_wh`
+* **Database**: `dbt_db`
+* **Role**: `dbt_role`
+* **User/Password**: (your Snowflake credentials)
+
+Alternatively, via CLI:
+
+```bash
+astro dev start
+astro dev bash
+airflow connections add snowflake_conn \
+    --conn-type snowflake \
+    --conn-login <USERNAME> \
+    --conn-password '<PASSWORD>' \
+    --conn-extra '{"account": "vzc06137.us-east-1", "warehouse": "dbt_wh", "database": "dbt_db", "role": "dbt_role"}'
+```
+
+### 4. Run the pipeline
+
+```bash
+astro dev start
+```
+
+Go to **[http://localhost:8080](http://localhost:8080)** → enable the DAG `dbt_dag` → Trigger Run.
+
+---
+
+## 📂 Repository Structure
+
+```
+.
+├── dags/
+│   ├── dbt_dag.py          # Airflow DAG definition
+│   └── dbt/                # dbt project
+│       ├── models/         # dbt models (staging, intermediate, fact)
+│       ├── seeds/          # Seed files (if any)
+│       └── dbt_project.yml # dbt project config
+├── .gitignore              # Ignore sensitive configs
+└── README.md
+```
+
+---
+
+## 🌀 Airflow DAG
+
+The DAG orchestrates dbt models in dependency order.
+
+### DAG Graph
+
+![Airflow DAG Graph](./docs/airflow_dag.png)
+
+### DAG Run History
+
+![Airflow DAG Runs](./docs/airflow_dag_runs.png)
+
+* **stg\_tpch\_orders / stg\_tpch\_line\_items** → Staging models
+* **int\_order\_items / int\_order\_items\_summary** → Intermediate aggregations
+* **fct\_orders** → Final fact table
+
+---
+
+## 🔒 Security & Secrets
+
+* **Do not commit credentials**.
+
+* Add `.gitignore`:
+
+  ```
+  # Ignore dbt target files
+  target/
+  logs/
+  .dbt/
+  profiles.yml
+
+  # Ignore Airflow logs & envs
+  airflow/logs/
+  airflow/unittests.cfg
+
+  # Ignore secrets
+  *.env
+  ```
+
+* Store credentials in:
+
+  * **Airflow Connections** (recommended)
+  * Or `.env` (but `.gitignore`d)
+
+---
+
+## ✅ Example DAG Run
+
+The DAG successfully runs transformations and creates tables in Snowflake schema:
+
+* **Staging:** `stg_tpch_orders`, `stg_tpch_line_items`
+* **Intermediate:** `int_order_items`, `int_order_items_summary`
+* **Fact:** `fct_orders`
+
+---
+
+## 📌 References
+
+* [dbt Docs](https://docs.getdbt.com)
+* [Astronomer (Airflow)](https://www.astronomer.io/docs)
+* [Snowflake Docs](https://docs.snowflake.com)
+
