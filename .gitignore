@@ -1,0 +1,37 @@
+# Python caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+dbt_venv/
+.env
+
+# Airflow logs
+logs/
+tmp/
+
+# dbt artifacts and profiles
+target/
+profiles.yml
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+
+# Airflow & Python
+*.pyc
+__pycache__/
+.venv/
+.env
+
+# Credentials
+*.json
+*.yaml
+*.yml
+*.ini
+secrets/
+
