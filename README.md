@@ -85,7 +85,7 @@ astro dev start
 astro dev bash
 airflow connections add snowflake_conn \
     --conn-type snowflake \
-    --conn-login <USERNAME> \
+    --conn-login '<USERNAME>' \
     --conn-password '<PASSWORD>' \
     --conn-extra '{"account": "<your_snowflake_account>", "warehouse": "dbt_wh", "database": "dbt_db", "role": "dbt_role"}'
 ```
@@ -106,8 +106,9 @@ Go to **[http://localhost:8080](http://localhost:8080)** → enable the DAG `dbt
 .
 ├── dags/
 │   ├── dbt_dag.py          # Airflow DAG definition
-│   └── dbt/                # dbt project
+│   └── dbt/data_pipeline   # dbt project
 │       ├── models/         # dbt models (staging, intermediate, fact)
+|       ├── macros/         # dbt macros (abstract complex logic, and standardize transformations)
 │       ├── seeds/          # Seed files (if any)
 │       └── dbt_project.yml # dbt project config
 ├── .gitignore              # Ignore sensitive configs
