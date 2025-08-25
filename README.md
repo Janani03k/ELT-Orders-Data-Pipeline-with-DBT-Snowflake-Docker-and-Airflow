@@ -108,8 +108,8 @@ Go to **[http://localhost:8080](http://localhost:8080)** → enable the DAG `dbt
 │   ├── dbt_dag.py          # Airflow DAG definition
 │   └── dbt/data_pipeline   # dbt project
 │       ├── models/         # dbt models (staging, intermediate, fact)
-            ├── marts/      # tables
-            ├── staging/    # views from database
+|           ├── marts/      # tables
+|           ├── staging/    # views from database
 |       ├── macros/         # dbt macros (abstract complex logic, and standardize transformations)
 │       ├── seeds/          # Seed files (if any)
 │       └── dbt_project.yml # dbt project config
